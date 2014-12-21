@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BCBC476E1A46DAA90079A471 /* bigmotor.wav in Resources */ = {isa = PBXBuildFile; fileRef = BCBC476D1A46DAA90079A471 /* bigmotor.wav */; };
 		BCC431291A33EB2600C16C88 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC431281A33EB2600C16C88 /* AppDelegate.swift */; };
 		BCC4312B1A33EB2600C16C88 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = BCC4312A1A33EB2600C16C88 /* GameScene.sks */; };
 		BCC4312D1A33EB2600C16C88 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4312C1A33EB2600C16C88 /* GameScene.swift */; };
@@ -28,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BCBC476D1A46DAA90079A471 /* bigmotor.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bigmotor.wav; sourceTree = "<group>"; };
 		BCC431231A33EB2600C16C88 /* Game2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Game2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCC431271A33EB2600C16C88 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BCC431281A33EB2600C16C88 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -63,6 +65,7 @@
 		BCC4311A1A33EB2600C16C88 = {
 			isa = PBXGroup;
 			children = (
+				BCBC476D1A46DAA90079A471 /* bigmotor.wav */,
 				BCC431251A33EB2600C16C88 /* Game2 */,
 				BCC4313F1A33EB2600C16C88 /* Game2Tests */,
 				BCC431241A33EB2600C16C88 /* Products */,
@@ -199,6 +202,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BCC431371A33EB2600C16C88 /* LaunchScreen.xib in Resources */,
+				BCBC476E1A46DAA90079A471 /* bigmotor.wav in Resources */,
 				BCC431341A33EB2600C16C88 /* Images.xcassets in Resources */,
 				BCC4312B1A33EB2600C16C88 /* GameScene.sks in Resources */,
 				BCC431321A33EB2600C16C88 /* Main.storyboard in Resources */,
@@ -413,6 +417,7 @@
 				BCC431481A33EB2600C16C88 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BCC431491A33EB2600C16C88 /* Build configuration list for PBXNativeTarget "Game2Tests" */ = {
 			isa = XCConfigurationList;
@@ -421,6 +426,7 @@
 				BCC4314B1A33EB2600C16C88 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -7,39 +7,275 @@
 //
 
 import SpriteKit
+import AVFoundation.AVAudioPlayer
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
+    
+    var overlay: SKNode?
+    var speedLabel: SKLabelNode?
+    
+    var world: SKNode?
+    var camera: SKNode?
+    var car: SKSpriteNode!
+    var target:SKNode!
+    
+    var carForce: CGFloat = 0
+    
+    var player: AVAudioPlayer!
+    
     override func didMoveToView(view: SKView) {
-        /* Setup your scene here */
-        let myLabel = SKLabelNode(fontNamed:"Chalkduster")
-        myLabel.text = "Hello, World!";
-        myLabel.fontSize = 65;
-        myLabel.position = CGPoint(x:CGRectGetMidX(self.frame), y:CGRectGetMidY(self.frame));
         
-        self.addChild(myLabel)
+        let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("bigmotor", ofType: "wav")!)
+        println(fileURL)
+        player = AVAudioPlayer(contentsOfURL: fileURL, error: nil)
+        player.enableRate = true
+        player.prepareToPlay()
+        player.numberOfLoops = -1
+//        player.play()
+        
+        self.anchorPoint = CGPoint(x: 0.5, y: 0)
+        
+        // overlay
+        self.overlay = SKNode()
+        self.overlay!.name = "overlay"
+        self.overlay!.zPosition = 10
+        self.addChild(overlay!)
+        
+        // speedLabel
+        self.speedLabel = SKLabelNode(fontNamed: "Chalkduster")
+        self.speedLabel!.fontSize = 22
+        self.speedLabel?.position.y = size.height - 50
+        self.speedLabel!.text = "0 km/h"
+        self.overlay!.addChild(speedLabel!)
+        
+        // world
+        self.world = SKNode()
+        self.world?.name = "world"
+        addChild(self.world!)
+        
+        self.physicsWorld.gravity.dy = 0
+        
+        // road
+        var asphalt: SKSpriteNode
+        asphalt = road()
+        asphalt.position = CGPoint(x: 0, y: 0)
+        self.world?.addChild(asphalt)
+        asphalt = road()
+        asphalt.position = CGPoint(x: 0, y: asphalt.size.height)
+        self.world?.addChild(asphalt)
+        asphalt = road()
+        asphalt.position = CGPoint(x: 0, y: asphalt.size.height * 2)
+        self.world?.addChild(asphalt)
+        asphalt = road()
+        asphalt.position = CGPoint(x: 0, y: asphalt.size.height * 3)
+        self.world?.addChild(asphalt)
+        
+        car = SKSpriteNode(imageNamed:"Stinger")
+        car.name = "car"
+        car.physicsBody = SKPhysicsBody(rectangleOfSize: car.size)
+        car.physicsBody?.mass = 2
+        car.physicsBody?.linearDamping = 1
+        car.physicsBody?.angularDamping = 1
+        self.world?.addChild(car)
+        
+        // Camera
+        camera = SKSpriteNode(color: UIColor.redColor(), size: CGSize(width: 10, height: 10))
+        camera!.name = "camera"
+        camera!.position.y = -100
+//                camera!.physicsBody = SKPhysicsBody(rectangleOfSize: CGSize(width: 1, height: 1))
+                camera!.physicsBody?.linearDamping = 10
+        camera!.physicsBody?.allowsRotation = false
+        camera!.physicsBody?.mass = 0.001
+        self.world?.addChild(camera!)
+
+//        self.physicsWorld.speed = 0.2
+        
+        target = SKSpriteNode(color: UIColor.greenColor(), size: CGSize(width: 4, height: 4))
+        self.world?.addChild(target)
+        
+        // addCars
+//        runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.runBlock(addCar),SKAction.waitForDuration(3, withRange: 1)])))
+        
+        // Gestures
+//        let swL = UISwipeGestureRecognizer(target: self, action: "lSwipe:")
+//        let swR = UISwipeGestureRecognizer(target: self, action: "rSwipe:")
+//        swL.direction = UISwipeGestureRecognizerDirection.Left
+//        swR.direction = UISwipeGestureRecognizerDirection.Right
+//        self.view?.addGestureRecognizer(swL)
+//        self.view?.addGestureRecognizer(swR)
+//        self.physicsWorld.contactDelegate = self
+    }
+    
+    func road() -> SKSpriteNode
+    {
+        let asphalt = SKSpriteNode(imageNamed: "Asphalt")
+        asphalt.name = "asphalt"
+//        asphalt.anchorPoint.y = 0
+        asphalt.zPosition = -1
+        
+        let lBorder = SKSpriteNode(color: UIColor.redColor(), size: CGSize(width: 1, height: asphalt.size.height))
+        lBorder.physicsBody = SKPhysicsBody(edgeFromPoint: CGPoint(x: 0, y: 0), toPoint: CGPoint(x: 0, y: lBorder.size.height))
+        lBorder.physicsBody?.friction = 0
+        lBorder.physicsBody?.restitution = 0
+        lBorder.position.x = -asphalt.size.width / 2
+        asphalt.addChild(lBorder)
+        
+        let rBorder = SKSpriteNode(color: UIColor.redColor(), size: CGSize(width: 1, height: asphalt.size.height))
+        rBorder.physicsBody = SKPhysicsBody(edgeFromPoint: CGPoint(x: 0, y: 0), toPoint: CGPoint(x: 0, y: rBorder.size.height))
+        rBorder.physicsBody?.friction = 0
+        rBorder.physicsBody?.restitution = 0
+        rBorder.position.x = asphalt.size.width / 2
+        asphalt.addChild(rBorder)
+        
+        return asphalt
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+//        addCar()
+        
+//        car.physicsBody?.velocity.dy = 200
+//        car.physicsBody?.applyForce(CGVector(dx: 0, dy: 1000))
+//        car.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 50))
+//        carForce = 50
+        
         /* Called when a touch begins */
         
         for touch: AnyObject in touches {
-            let location = touch.locationInNode(self)
+            let location = touch.locationInNode(world!)
+            target.position.x = location.x
+//            SKAction.moveToX(location.x, duration: 1, curve: SKActionCurve.BounceEaseIn)
             
-            let sprite = SKSpriteNode(imageNamed:"Spaceship")
-            
-            sprite.xScale = 0.5
-            sprite.yScale = 0.5
-            sprite.position = location
-            
-            let action = SKAction.rotateByAngle(CGFloat(M_PI), duration:1)
-            
-            sprite.runAction(SKAction.repeatActionForever(action))
-            
-            self.addChild(sprite)
+//            let sprite = SKSpriteNode(imageNamed:"Spaceship")
+//            
+//            sprite.xScale = 0.5
+//            sprite.yScale = 0.5
+//            sprite.position = location
+//            
+//            let action = SKAction.rotateByAngle(CGFloat(M_PI), duration:1)
+//            
+//            sprite.runAction(SKAction.repeatActionForever(action))
+//            
+//            self.addChild(sprite)
         }
     }
-   
-    override func update(currentTime: CFTimeInterval) {
-        /* Called before each frame is rendered */
+    
+    override func touchesCancelled(touches: NSSet!, withEvent event: UIEvent!) {
+        carForce = 0
+    }
+    
+    override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
+        carForce = 0
+    }
+    
+    func skRandf() -> CGFloat {
+        return CGFloat(rand()) / CGFloat(RAND_MAX)
+    }
+    
+    func skRand(low: CGFloat, high: CGFloat) -> CGFloat {
+        return skRandf() * (high - low) + low
+    }
+    
+    func addCar()
+    {
+        var random = skRand(0,high: 3)
+        var carName = ""
+        if random < 1
+        {
+            carName = "shark"
+        }
+        else if random < 2
+        {
+            carName = "jefferson"
+        }
+        else
+        {
+            carName = "truck"
+        }
+        
+        let wheel = SKSpriteNode(imageNamed: carName)
+        wheel.name = "wheel"
+        wheel.physicsBody = SKPhysicsBody(rectangleOfSize: wheel.size)
+        wheel.physicsBody?.affectedByGravity = false
+        wheel.physicsBody?.mass = 1 //wheel.size.height*wheel.size.width/10000
+        wheel.physicsBody?.linearDamping = 2 //500/(wheel.size.height*wheel.size.width);
+        wheel.physicsBody?.angularDamping = 1
+        //        wheel.physicsBody?.usesPreciseCollisionDetection = true
+
+        wheel.position = CGPoint(
+            x: skRand(-size.width/3, high: size.width/3),
+            y: car.position.y + 1000)
+        
+        if wheel.position.x < 0
+        {
+            wheel.zRotation = CGFloat(M_PI)
+        }
+        world?.addChild(wheel)
+    }
+    
+    override func didSimulatePhysics() {
+        carForce = 40
+        target.position.y = car.position.y + 100 // - 5 * fabs(car.position.x.distanceTo(target.position.x))
+        
+        let a = car.position.x.distanceTo(target.position.x)
+        let b = car.position.y.distanceTo(target.position.y)
+        let rotation = -asin(a / sqrt(a * a + b * b))
+        
+        car.physicsBody?.applyImpulse(CGVector(dx: -sin(rotation) * carForce, dy: cos(rotation) * carForce))
+        let v = car.physicsBody!.velocity
+        car.zRotation = -asin(v.dx / sqrt(v.dx * v.dx + v.dy * v.dy))
+
+//        if (fabs(car.zRotation.distanceTo(0)) < 0.02)
+//        {
+//            target.position.x = car.position.x
+//        }
+        
+        let carSpeed = Int(sqrt(pow((car.physicsBody?.velocity.dx)!,2) + pow((car.physicsBody?.velocity.dy)!,2))/10)
+        self.speedLabel?.text = "\(carSpeed) km/h"
+        player.rate = Float(carSpeed) / 10
+        
+        self.world!.enumerateChildNodesWithName("asphalt", usingBlock: { (node, stop) -> Void in
+            let node1: SKSpriteNode = node as SKSpriteNode
+            
+            if node.position.y - self.car!.position.y < -node1.size.height*2
+            {
+                node.position.y += node1.size.height * 4
+            }
+        })
+        
+        world!.enumerateChildNodesWithName("wheel", usingBlock: { (node, stop) -> Void in
+            let wheelForce = (node.position.x < 0) ? self.skRand(0, high: 20) : self.skRand(20, high: self.carForce)
+            let rotation = node.zRotation
+            node.physicsBody?.applyImpulse(CGVector(dx: -sin(rotation) * wheelForce, dy: cos(rotation) * wheelForce))
+            if node.position.y < self.car!.position.y - 2000
+            {
+                node.removeFromParent()
+            }
+        })
+        
+//        self.camera!.physicsBody?.applyForce(CGVector(dx: 0, //pow(self.camera!.position.x.distanceTo(car!.position.x-10)/50,5),
+//            dy: pow(self.camera!.position.y.distanceTo(car!.position.y-10)/50,5)))
+        camera?.position.y = car.position.y - 100
+        self.centerOnNode(self.camera!)
+        
+    }
+    
+    func centerOnNode(node: SKNode) {
+        
+        let cameraPositionInScene = node.scene?.convertPoint(node.position, fromNode: node.parent!)
+        node.parent!.position.x -= cameraPositionInScene!.x
+        node.parent!.position.y -= cameraPositionInScene!.y
+    }
+    
+    func rSwipe(tap: UISwipeGestureRecognizer)
+    {
+        target.position.x += 50
+//        target.runAction(SKAction.moveToX(target.position.x + 50, duration: 0.5))
+    }
+
+    
+    func lSwipe(tap: UISwipeGestureRecognizer)
+    {
+        target.position.x -= 50
+//        target.runAction(SKAction.moveToX(target.position.x - 50, duration: 0.5))
     }
 }

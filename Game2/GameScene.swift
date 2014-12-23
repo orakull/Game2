@@ -7,7 +7,7 @@
 //
 
 import SpriteKit
-import AVFoundation.AVAudioPlayer
+//import AVFoundation.AVAudioPlayer
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
@@ -21,16 +21,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var carForce: CGFloat = 0
     
-    var player: AVAudioPlayer!
+//    var player: AVAudioPlayer!
     
     override func didMoveToView(view: SKView) {
         
-        let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("bigmotor", ofType: "wav")!)
-        println(fileURL)
-        player = AVAudioPlayer(contentsOfURL: fileURL, error: nil)
-        player.enableRate = true
-        player.prepareToPlay()
-        player.numberOfLoops = -1
+//        let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("bigmotor", ofType: "wav")!)
+//        println(fileURL)
+//        player = AVAudioPlayer(contentsOfURL: fileURL, error: nil)
+//        player.enableRate = true
+//        player.prepareToPlay()
+//        player.numberOfLoops = -1
 //        player.play()
         
         self.anchorPoint = CGPoint(x: 0.5, y: 0)
@@ -231,7 +231,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let carSpeed = Int(sqrt(pow((car.physicsBody?.velocity.dx)!,2) + pow((car.physicsBody?.velocity.dy)!,2))/10)
         self.speedLabel?.text = "\(carSpeed) km/h"
-        player.rate = Float(carSpeed) / 10
+
+//        player.rate = Float(carSpeed) / 10
         
         self.world!.enumerateChildNodesWithName("asphalt", usingBlock: { (node, stop) -> Void in
             let node1: SKSpriteNode = node as SKSpriteNode

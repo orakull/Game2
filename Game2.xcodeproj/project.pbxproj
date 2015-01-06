@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC94116F1A5C14AC00E6655C /* easing.c in Sources */ = {isa = PBXBuildFile; fileRef = BC94116D1A5C14AC00E6655C /* easing.c */; };
 		BCBC476E1A46DAA90079A471 /* bigmotor.wav in Resources */ = {isa = PBXBuildFile; fileRef = BCBC476D1A46DAA90079A471 /* bigmotor.wav */; };
 		BCC431291A33EB2600C16C88 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC431281A33EB2600C16C88 /* AppDelegate.swift */; };
 		BCC4312B1A33EB2600C16C88 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = BCC4312A1A33EB2600C16C88 /* GameScene.sks */; };
@@ -29,6 +30,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BC9411691A5C149200E6655C /* Game2-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Game2-Bridging-Header.h"; sourceTree = "<group>"; };
+		BC94116D1A5C14AC00E6655C /* easing.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = easing.c; sourceTree = "<group>"; };
+		BC94116E1A5C14AC00E6655C /* easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = easing.h; sourceTree = "<group>"; };
 		BCBC476D1A46DAA90079A471 /* bigmotor.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bigmotor.wav; sourceTree = "<group>"; };
 		BCC431231A33EB2600C16C88 /* Game2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Game2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCC431271A33EB2600C16C88 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -92,6 +96,9 @@
 				BCC431331A33EB2600C16C88 /* Images.xcassets */,
 				BCC431351A33EB2600C16C88 /* LaunchScreen.xib */,
 				BCC431261A33EB2600C16C88 /* Supporting Files */,
+				BC9411691A5C149200E6655C /* Game2-Bridging-Header.h */,
+				BC94116D1A5C14AC00E6655C /* easing.c */,
+				BC94116E1A5C14AC00E6655C /* easing.h */,
 			);
 			path = Game2;
 			sourceTree = "<group>";
@@ -223,6 +230,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC94116F1A5C14AC00E6655C /* easing.c in Sources */,
 				BCC4312D1A33EB2600C16C88 /* GameScene.swift in Sources */,
 				BCC4312F1A33EB2600C16C88 /* GameViewController.swift in Sources */,
 				BCC431291A33EB2600C16C88 /* AppDelegate.swift in Sources */,
@@ -348,9 +356,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Game2/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Game2/Game2-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -358,9 +371,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Game2/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Game2/Game2-Bridging-Header.h";
 			};
 			name = Release;
 		};

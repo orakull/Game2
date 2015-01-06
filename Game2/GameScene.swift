@@ -11,6 +11,9 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    let carPositions: Array<CGFloat> = [-100, -35, 35, 100]
+    var currentCarPosition: Int = 2;
+    
     var overlay: SKNode?
     var speedLabel: SKLabelNode?
     
@@ -19,7 +22,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var car: SKSpriteNode!
     var target:SKNode!
     
-    var carForce: CGFloat = 0
+    var carForce: CGFloat = 40
     
 //    var player: AVAudioPlayer!
     
@@ -71,12 +74,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.world?.addChild(asphalt)
         
         car = SKSpriteNode(imageNamed:"Stinger")
+        car.position.x = self.carPositions[self.currentCarPosition]
         car.name = "car"
         car.physicsBody = SKPhysicsBody(rectangleOfSize: car.size)
         car.physicsBody?.mass = 2
         car.physicsBody?.linearDamping = 1
         car.physicsBody?.angularDamping = 1
         self.world?.addChild(car)
+        
+//        car.runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.runBlock({ () -> Void in
+//            self.car.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 40))
+//        }),SKAction.waitForDuration(1)])))
+        
+        car.runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.runBlock(applyForce), SKAction.waitForDuration(1/30)])))
+
         
         // Camera
         camera = SKSpriteNode(color: UIColor.redColor(), size: CGSize(width: 10, height: 10))
@@ -90,20 +101,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 //        self.physicsWorld.speed = 0.2
         
-        target = SKSpriteNode(color: UIColor.greenColor(), size: CGSize(width: 4, height: 4))
+        target = SKSpriteNode(color: UIColor.greenColor(), size: CGSize(width: 1, height: 1))
+        target.position.x = self.carPositions[self.currentCarPosition]
         self.world?.addChild(target)
         
         // addCars
 //        runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.runBlock(addCar),SKAction.waitForDuration(3, withRange: 1)])))
         
         // Gestures
-//        let swL = UISwipeGestureRecognizer(target: self, action: "lSwipe:")
-//        let swR = UISwipeGestureRecognizer(target: self, action: "rSwipe:")
-//        swL.direction = UISwipeGestureRecognizerDirection.Left
-//        swR.direction = UISwipeGestureRecognizerDirection.Right
-//        self.view?.addGestureRecognizer(swL)
-//        self.view?.addGestureRecognizer(swR)
-//        self.physicsWorld.contactDelegate = self
+        let swL = UISwipeGestureRecognizer(target: self, action: "lSwipe:")
+        let swR = UISwipeGestureRecognizer(target: self, action: "rSwipe:")
+        swL.direction = UISwipeGestureRecognizerDirection.Left
+        swR.direction = UISwipeGestureRecognizerDirection.Right
+        self.view?.addGestureRecognizer(swL)
+        self.view?.addGestureRecognizer(swR)
+        self.physicsWorld.contactDelegate = self
+    }
+    
+    func applyForce()
+    {
+        self.car?.physicsBody?.applyImpulse(CGVector(dx: 0, dy: self.carForce))
     }
     
     func road() -> SKSpriteNode
@@ -142,7 +159,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         for touch: AnyObject in touches {
             let location = touch.locationInNode(world!)
-            target.position.x = location.x
+//            target.position.x = location.x
 //            SKAction.moveToX(location.x, duration: 1, curve: SKActionCurve.BounceEaseIn)
             
 //            let sprite = SKSpriteNode(imageNamed:"Spaceship")
@@ -214,13 +231,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didSimulatePhysics() {
         carForce = 40
-        target.position.y = car.position.y + 100 // - 5 * fabs(car.position.x.distanceTo(target.position.x))
+        target.position.y = car.position.y + 300 // - 5 * fabs(car.position.x.distanceTo(target.position.x))
         
         let a = car.position.x.distanceTo(target.position.x)
         let b = car.position.y.distanceTo(target.position.y)
         let rotation = -asin(a / sqrt(a * a + b * b))
         
-        car.physicsBody?.applyImpulse(CGVector(dx: -sin(rotation) * carForce, dy: cos(rotation) * carForce))
+//        car.physicsBody?.applyImpulse(CGVector(dx: -sin(rotation) * carForce, dy: cos(rotation) * carForce))
+//        car.physicsBody?.applyImpulse(CGVector(dx: 0, dy: carForce * cos(rotation)))
+        car.physicsBody!.velocity.dx = -target.position.x.distanceTo(car.position.x) * 8
         let v = car.physicsBody!.velocity
         car.zRotation = -asin(v.dx / sqrt(v.dx * v.dx + v.dy * v.dy))
 
@@ -269,14 +288,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func rSwipe(tap: UISwipeGestureRecognizer)
     {
-        target.position.x += 50
-//        target.runAction(SKAction.moveToX(target.position.x + 50, duration: 0.5))
+//        target.position.x += 50
+        self.currentCarPosition++
+        self.moveTarget()
     }
 
-    
     func lSwipe(tap: UISwipeGestureRecognizer)
     {
-        target.position.x -= 50
-//        target.runAction(SKAction.moveToX(target.position.x - 50, duration: 0.5))
+//        target.position.x -= 50
+        self.currentCarPosition--
+        self.moveTarget()
     }
+    
+    func moveTarget()
+    {
+        
+        if self.currentCarPosition >= self.carPositions.count
+        {
+            self.currentCarPosition--;
+        }
+        if self.currentCarPosition < 0
+        {
+            self.currentCarPosition = 0
+        }
+        
+        let movement = SKAction.moveToX(self.carPositions[self.currentCarPosition], duration: 0.2)
+//        movement.timingFunction = CubicEaseIn
+        movement.timingMode = SKActionTimingMode.EaseIn
+        target.runAction(movement)
+    }
+    
 }

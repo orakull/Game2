@@ -22,7 +22,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var car: SKSpriteNode!
     var target:SKNode!
     
-    var carForce: CGFloat = 40
+    var carForce: CGFloat = 30
     
 //    var player: AVAudioPlayer!
     
@@ -106,7 +106,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.world?.addChild(target)
         
         // addCars
-//        runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.runBlock(addCar),SKAction.waitForDuration(3, withRange: 1)])))
+        runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.runBlock(addCar),SKAction.waitForDuration(3, withRange: 1)])))
         
         // Gestures
         let swL = UISwipeGestureRecognizer(target: self, action: "lSwipe:")
@@ -121,6 +121,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func applyForce()
     {
         self.car?.physicsBody?.applyImpulse(CGVector(dx: 0, dy: self.carForce))
+        
+        car.physicsBody!.velocity.dx = -target.position.x.distanceTo(car.position.x) * 8
+        
+        world!.enumerateChildNodesWithName("wheel", usingBlock: { (node, stop) -> Void in
+            let wheelForce = ((node.position.x < 0) ? self.skRand(0, high: 1/4) : self.skRand(1/2, high: 1)) * self.carForce
+            let rotation = node.zRotation
+            node.physicsBody?.applyImpulse(CGVector(dx: -sin(rotation) * wheelForce, dy: cos(rotation) * wheelForce))
+            if node.position.y < self.car!.position.y - 2000
+            {
+                node.removeFromParent()
+            }
+        })
     }
     
     func road() -> SKSpriteNode
@@ -130,19 +142,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        asphalt.anchorPoint.y = 0
         asphalt.zPosition = -1
         
-        let lBorder = SKSpriteNode(color: UIColor.redColor(), size: CGSize(width: 1, height: asphalt.size.height))
-        lBorder.physicsBody = SKPhysicsBody(edgeFromPoint: CGPoint(x: 0, y: 0), toPoint: CGPoint(x: 0, y: lBorder.size.height))
-        lBorder.physicsBody?.friction = 0
-        lBorder.physicsBody?.restitution = 0
-        lBorder.position.x = -asphalt.size.width / 2
-        asphalt.addChild(lBorder)
+//        let lBorder = SKSpriteNode(color: UIColor.redColor(), size: CGSize(width: 1, height: asphalt.size.height))
+//        lBorder.physicsBody = SKPhysicsBody(edgeFromPoint: CGPoint(x: 0, y: 0), toPoint: CGPoint(x: 0, y: lBorder.size.height))
+//        lBorder.physicsBody?.friction = 0
+//        lBorder.physicsBody?.restitution = 0
+//        lBorder.position.x = -asphalt.size.width / 2
+//        asphalt.addChild(lBorder)
         
-        let rBorder = SKSpriteNode(color: UIColor.redColor(), size: CGSize(width: 1, height: asphalt.size.height))
-        rBorder.physicsBody = SKPhysicsBody(edgeFromPoint: CGPoint(x: 0, y: 0), toPoint: CGPoint(x: 0, y: rBorder.size.height))
-        rBorder.physicsBody?.friction = 0
-        rBorder.physicsBody?.restitution = 0
-        rBorder.position.x = asphalt.size.width / 2
-        asphalt.addChild(rBorder)
+//        let rBorder = SKSpriteNode(color: UIColor.redColor(), size: CGSize(width: 1, height: asphalt.size.height))
+//        rBorder.physicsBody = SKPhysicsBody(edgeFromPoint: CGPoint(x: 0, y: 0), toPoint: CGPoint(x: 0, y: rBorder.size.height))
+//        rBorder.physicsBody?.friction = 0
+//        rBorder.physicsBody?.restitution = 0
+//        rBorder.position.x = asphalt.size.width / 2
+//        asphalt.addChild(rBorder)
         
         return asphalt
     }
@@ -153,7 +165,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        car.physicsBody?.velocity.dy = 200
 //        car.physicsBody?.applyForce(CGVector(dx: 0, dy: 1000))
 //        car.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 50))
-//        carForce = 50
         
         /* Called when a touch begins */
         
@@ -174,14 +185,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //            
 //            self.addChild(sprite)
         }
-    }
-    
-    override func touchesCancelled(touches: NSSet!, withEvent event: UIEvent!) {
-        carForce = 0
-    }
-    
-    override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
-        carForce = 0
     }
     
     func skRandf() -> CGFloat {
@@ -219,7 +222,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //        wheel.physicsBody?.usesPreciseCollisionDetection = true
 
         wheel.position = CGPoint(
-            x: skRand(-size.width/3, high: size.width/3),
+            x: self.carPositions[Int(self.skRand(0, high: 4))],
             y: car.position.y + 1000)
         
         if wheel.position.x < 0
@@ -230,23 +233,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func didSimulatePhysics() {
-        carForce = 40
         target.position.y = car.position.y + 300 // - 5 * fabs(car.position.x.distanceTo(target.position.x))
         
         let a = car.position.x.distanceTo(target.position.x)
         let b = car.position.y.distanceTo(target.position.y)
         let rotation = -asin(a / sqrt(a * a + b * b))
         
-//        car.physicsBody?.applyImpulse(CGVector(dx: -sin(rotation) * carForce, dy: cos(rotation) * carForce))
-//        car.physicsBody?.applyImpulse(CGVector(dx: 0, dy: carForce * cos(rotation)))
-        car.physicsBody!.velocity.dx = -target.position.x.distanceTo(car.position.x) * 8
         let v = car.physicsBody!.velocity
         car.zRotation = -asin(v.dx / sqrt(v.dx * v.dx + v.dy * v.dy))
-
-//        if (fabs(car.zRotation.distanceTo(0)) < 0.02)
-//        {
-//            target.position.x = car.position.x
-//        }
+        
         
         let carSpeed = Int(sqrt(pow((car.physicsBody?.velocity.dx)!,2) + pow((car.physicsBody?.velocity.dy)!,2))/10)
         self.speedLabel?.text = "\(carSpeed) km/h"
@@ -262,19 +257,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         })
         
-        world!.enumerateChildNodesWithName("wheel", usingBlock: { (node, stop) -> Void in
-            let wheelForce = (node.position.x < 0) ? self.skRand(0, high: 20) : self.skRand(20, high: self.carForce)
-            let rotation = node.zRotation
-            node.physicsBody?.applyImpulse(CGVector(dx: -sin(rotation) * wheelForce, dy: cos(rotation) * wheelForce))
-            if node.position.y < self.car!.position.y - 2000
-            {
-                node.removeFromParent()
-            }
-        })
-        
 //        self.camera!.physicsBody?.applyForce(CGVector(dx: 0, //pow(self.camera!.position.x.distanceTo(car!.position.x-10)/50,5),
 //            dy: pow(self.camera!.position.y.distanceTo(car!.position.y-10)/50,5)))
-        camera?.position.y = car.position.y - 100
+        camera?.position.y = car.position.y - 80
         self.centerOnNode(self.camera!)
         
     }
@@ -288,14 +273,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func rSwipe(tap: UISwipeGestureRecognizer)
     {
-//        target.position.x += 50
         self.currentCarPosition++
         self.moveTarget()
     }
 
     func lSwipe(tap: UISwipeGestureRecognizer)
     {
-//        target.position.x -= 50
         self.currentCarPosition--
         self.moveTarget()
     }
@@ -312,7 +295,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.currentCarPosition = 0
         }
         
-        let movement = SKAction.moveToX(self.carPositions[self.currentCarPosition], duration: 0.2)
+        let duration = NSTimeInterval(0.2 * 40 / self.carForce)
+        let movement = SKAction.moveToX(self.carPositions[self.currentCarPosition], duration: duration)
 //        movement.timingFunction = CubicEaseIn
         movement.timingMode = SKActionTimingMode.EaseIn
         target.runAction(movement)

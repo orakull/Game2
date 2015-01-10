@@ -73,7 +73,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         asphalt.position = CGPoint(x: 0, y: asphalt.size.height * 3)
         self.world?.addChild(asphalt)
         
-        car = SKSpriteNode(imageNamed:"Stinger")
+        car = SKSpriteNode(imageNamed:"stinger")
         car.position.x = self.carPositions[self.currentCarPosition]
         car.name = "car"
         car.physicsBody = SKPhysicsBody(rectangleOfSize: car.size)

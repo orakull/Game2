@@ -109,12 +109,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.runBlock(addCar),SKAction.waitForDuration(3, withRange: 1)])))
         
         // Gestures
-        let swL = UISwipeGestureRecognizer(target: self, action: "lSwipe:")
-        let swR = UISwipeGestureRecognizer(target: self, action: "rSwipe:")
-        swL.direction = UISwipeGestureRecognizerDirection.Left
-        swR.direction = UISwipeGestureRecognizerDirection.Right
-        self.view?.addGestureRecognizer(swL)
-        self.view?.addGestureRecognizer(swR)
+        var swipe: UISwipeGestureRecognizer
+        swipe = UISwipeGestureRecognizer(target: self, action: "onSwipe:")
+        swipe.direction = UISwipeGestureRecognizerDirection.Left
+        self.view!.addGestureRecognizer(swipe)
+        swipe = UISwipeGestureRecognizer(target: self, action: "onSwipe:")
+        swipe.direction = UISwipeGestureRecognizerDirection.Right
+        self.view!.addGestureRecognizer(swipe)
+        swipe = UISwipeGestureRecognizer(target: self, action: "onSwipe:")
+        swipe.direction = UISwipeGestureRecognizerDirection.Up
+        self.view!.addGestureRecognizer(swipe)
+        swipe = UISwipeGestureRecognizer(target: self, action: "onSwipe:")
+        swipe.direction = UISwipeGestureRecognizerDirection.Down
+        self.view!.addGestureRecognizer(swipe)
+        
         self.physicsWorld.contactDelegate = self
     }
     
@@ -271,18 +279,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.parent!.position.y -= cameraPositionInScene!.y
     }
     
-    func rSwipe(tap: UISwipeGestureRecognizer)
+    func onSwipe(tap: UISwipeGestureRecognizer)
     {
-        self.currentCarPosition++
-        self.moveTarget()
+        switch (tap.direction) {
+        case UISwipeGestureRecognizerDirection.Right:
+            self.currentCarPosition++
+            self.moveTarget()
+            break;
+        case UISwipeGestureRecognizerDirection.Left:
+            self.currentCarPosition--
+            self.moveTarget()
+            break;
+        case UISwipeGestureRecognizerDirection.Up:
+            self.carForce *= 1.25
+            break;
+        case UISwipeGestureRecognizerDirection.Down:
+            self.carForce /= 1.25
+            break;
+        default:
+            break;
+        }
     }
 
-    func lSwipe(tap: UISwipeGestureRecognizer)
-    {
-        self.currentCarPosition--
-        self.moveTarget()
-    }
-    
     func moveTarget()
     {
         
